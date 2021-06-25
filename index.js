@@ -44,7 +44,6 @@ app.get('/api/persons/:id', (request, response) => {
         response.status(404).end("Object doesn't exist")
     }
     response.send(personObject)
-    console.log(personObject)
 })
 //add new json resource
 app.post('/api/persons/', (request, response) => {
