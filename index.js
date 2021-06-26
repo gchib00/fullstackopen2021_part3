@@ -1,6 +1,20 @@
 const express = require('express')
 const app = express()
+const morgan = require('morgan')
+
 app.use(express.json())
+
+morgan.token('body', (request) => {
+    //we only want json data to be returned if methd is POST, otherwise it will return empty function
+    if (request.method === "GET") {
+        return null
+    } else {
+        return JSON.stringify(request.body)   
+    }
+})
+
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
+
 
 let persons = [
         {
@@ -50,12 +64,21 @@ app.post('/api/persons/', (request, response) => {
     const body = request.body
     const randomID = Math.floor(Math.random() * 100000)
 
-    const newPerson = {
-        "name": body.name,
-        "number": body.number,
-        "id": randomID
+    if ((body.name == "") || (body.number == "")){
+        response.status(404).end("Name/Number field is empty!")
+    } else {
+        const newPerson = {
+            "name": body.name,
+            "number": body.number,
+            "id": randomID
+        }
+        if (persons.some(person => person.name === newPerson.name)){
+            response.status(404).end("Name already exists!")
+        } else {
+            persons = persons.concat(newPerson)
+            response.status(204).end()
+        }
     }
-    persons = persons.concat(newPerson)
 })
 //delete json resource
 app.delete('/api/persons/:id', (request, response) => {
