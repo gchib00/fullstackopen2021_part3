@@ -3,8 +3,10 @@ const app = express()
 const cors = require('cors')
 const morgan = require('morgan')
 
+
 app.use(cors())
 app.use(express.json())
+app.use(express.static('build'))
 
 morgan.token('body', (request) => {
     //we only want json data to be returned if methd is POST, otherwise it will return empty function
