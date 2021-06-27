@@ -46,10 +46,7 @@ let persons = [
 
 
 
-//main page
-app.get('/', (request, response) => {
-    response.send('<h1>Hello World!</h1>')
-})
+
 //show full persons json file
 app.get('/api/persons/', (request, response) => {
     response.send(persons)
