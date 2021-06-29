@@ -2,6 +2,8 @@ const express = require('express')
 const app = express()
 const cors = require('cors')
 const morgan = require('morgan')
+require('dotenv').config() //Takes variables from .env
+const Person = require('./models/person')
 
 
 app.use(cors())
@@ -19,37 +21,19 @@ morgan.token('body', (request) => {
 
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
 
-
-let persons = [
-        {
-            "name": "Arto Hellas",
-            "number": "040-123456",
-            "id": 1
-        },
-        {
-            "name": "Ada Lovelace",
-            "number": "39-44-5323523",
-            "id": 2
-        },
-        {
-            "name": "Evgeny Lowa",
-            "number": "551438080",
-            "id": 3
-        },
-        {
-            "name": "Tanya Ivanko",
-            "number": "43331553",
-            "id": 4
-        }
-]
-
-
-
-
+let allPersons=[]
+Person.find({}).then(person => {
+    allPersons.push(person)
+})
 
 //show full persons json file
 app.get('/api/persons/', (request, response) => {
-    response.send(persons)
+    // Person.find({}).then(person => {
+    //     response.json(person)
+    // })
+    allPersons.map(person => {
+        response.json(person)
+    })
 })
 //show a single json resource
 app.get('/api/persons/:id', (request, response) => {
@@ -63,24 +47,21 @@ app.get('/api/persons/:id', (request, response) => {
 //add new json resource
 app.post('/api/persons/', (request, response) => {
     const body = request.body
-    const randomID = Math.floor(Math.random() * 100000)
 
-    if ((body.name == "") || (body.number == "")){
-        response.status(404).end("Name/Number field is empty!")
-    } else {
-        const newPerson = {
-            "name": body.name,
-            "number": body.number,
-            "id": randomID
-        }
-        if (persons.some(person => person.name === newPerson.name)){
-            response.status(404).end("Name already exists!")
-        } else {
-            persons = persons.concat(newPerson)
-            response.status(204).end()
-        }
-    }
+    const newPerson = new Person({
+        "name": body.name,
+        "number": body.number,
+    })
+
+    newPerson.save().then(person => {
+        response.json(person)
+        Person.find({}).then(person => {
+            allPersons.push(person)
+        })
+    })
+       
 })
+
 //delete json resource
 app.delete('/api/persons/:id', (request, response) => {
     const id = Number(request.params.id)
@@ -90,8 +71,38 @@ app.delete('/api/persons/:id', (request, response) => {
 //info page
 app.get('/info/', (request, response) => {
     let date = new Date()
-    response.send(`<p>Phonebook has info for ${persons.length} people</p> <p>${date}</p>`)
+    response.send(`<p>Phonebook has info for ${allPersons.length} people</p> <p>${date}</p>`)
 })
+
+
+
+
+
+
+
+
+// const mongoose = require('mongoose')
+
+// const url =
+// `mongodb+srv://fullstack-phonebook-app:${process.env.PASSWORD}@cluster0.j7uur.mongodb.net/phonebook-app?retryWrites=true&w=majority`
+
+// mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false, useCreateIndex: true })
+
+// const PersonSchema = new mongoose.Schema({
+//   content: String,
+//   number: String,
+// })
+
+// const Person = mongoose.model('Person', PersonSchema)
+
+
+
+
+
+
+
+
+
 
 
 

@@ -63,22 +63,3 @@ if (process.argv.length == 3) {
   })
 }
 
-
-
-// note2.save().then(result => {
-//   console.log('note2 saved!')
-//   console.log(Note)
-// })
-
-// note3.save().then(result => {
-//   console.log('note3 saved!')
-//   mongoose.connection.close()
-// })
-
-// Note.find({}).then(result => {
-//   result.forEach(note => {
-//     console.log('test', note)
-//   })
-//   mongoose.connection.close()
-// })
-
