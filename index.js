@@ -21,17 +21,10 @@ morgan.token('body', (request) => {
 
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
 
-let allPersons=[]
-Person.find({}).then(person => {
-    allPersons.push(person)
-})
 
 //show full persons json file
 app.get('/api/persons/', (request, response) => {
-    // Person.find({}).then(person => {
-    //     response.json(person)
-    // })
-    allPersons.map(person => {
+    Person.find({}).then(person => {
         response.json(person)
     })
 })
@@ -55,9 +48,6 @@ app.post('/api/persons/', (request, response) => {
 
     newPerson.save().then(person => {
         response.json(person)
-        Person.find({}).then(person => {
-            allPersons.push(person)
-        })
     })
        
 })
@@ -71,7 +61,7 @@ app.delete('/api/persons/:id', (request, response) => {
 //info page
 app.get('/info/', (request, response) => {
     let date = new Date()
-    response.send(`<p>Phonebook has info for ${allPersons.length} people</p> <p>${date}</p>`)
+    response.send(`<p>Phonebook has info for ??? people</p> <p>${date}</p>`)
 })
 
 
