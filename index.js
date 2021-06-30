@@ -4,6 +4,7 @@ const cors = require('cors')
 const morgan = require('morgan')
 require('dotenv').config() //Takes variables from .env
 const Person = require('./models/person')
+const person = require('./models/person')
 
 
 app.use(cors())
@@ -30,12 +31,9 @@ app.get('/api/persons/', (request, response) => {
 })
 //show a single json resource
 app.get('/api/persons/:id', (request, response) => {
-    const id = request.params.id
-    const personObject = persons.find(person => person.id == id) 
-    if (!personObject) {
-        response.status(404).end("Object doesn't exist")
-    }
-    response.send(personObject)
+    Person.findById(request.params.id).then(person => {
+            response.json(person)
+    })
 })
 //add new json resource
 app.post('/api/persons/', (request, response) => {
@@ -49,9 +47,7 @@ app.post('/api/persons/', (request, response) => {
     newPerson.save().then(person => {
         response.json(person)
     })
-       
 })
-
 //delete json resource
 app.delete('/api/persons/:id', (request, response, next) => {
     Person.findByIdAndRemove(request.params.id)
@@ -59,6 +55,19 @@ app.delete('/api/persons/:id', (request, response, next) => {
             response.status(204).end()
         })
         .catch(error => next(error))
+})
+//update address of json resource
+app.put('/api/persons/:id', (request, response) => {
+    const body = request.body
+    const updatedPerson = {
+        name: body.name,
+        number: body.number,
+    }
+    Person.findByIdAndUpdate(request.params.id , updatedPerson, { new: true })
+        .then(person => {
+            response.json(person)
+        })
+        .catch(error => console.log(`Something happened on backend: ${error}`))
 })
 //info page
 app.get('/info/', (request, response) => {
@@ -73,27 +82,21 @@ app.get('/info/', (request, response) => {
 
 
 
-// const mongoose = require('mongoose')
-
-// const url =
-// `mongodb+srv://fullstack-phonebook-app:${process.env.PASSWORD}@cluster0.j7uur.mongodb.net/phonebook-app?retryWrites=true&w=majority`
-
-// mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false, useCreateIndex: true })
-
-// const PersonSchema = new mongoose.Schema({
-//   content: String,
-//   number: String,
-// })
-
-// const Person = mongoose.model('Person', PersonSchema)
 
 
 
+const errorHandler = (error, request, response, next) => {
+    console.log("ERROR NAME: ",error.name)
+
+    if (error.name === 'ReferenceError'){
+        return response.status(400).send(`Conact doesn't exist!`)
+    }
 
 
+    next(error) //prints error and throws 404
+}
 
-
-
+app.use(errorHandler)
 
 
 
