@@ -12,7 +12,7 @@ app.use(express.static('build'))
 
 morgan.token('body', (request) => {
     //we only want json data to be returned if methd is POST, otherwise it will return empty function
-    if (request.method === "GET") {
+    if (request.method === 'GET') {
         return null
     } else {
         return JSON.stringify(request.body)   
@@ -31,7 +31,7 @@ app.get('/api/persons/', (request, response) => {
 //show a single json resource
 app.get('/api/persons/:id', (request, response) => {
     Person.findById(request.params.id).then(person => {
-            response.json(person)
+        response.json(person)
     })
 })
 //update address of json resource
@@ -52,14 +52,12 @@ app.get('/info/', (request, response) => {
     let date = new Date()
     Person.find().exec(function (err, results) {
         response.send(`<p>Phonebook has info for ${results.length} people</p> <p>${date}</p>`)
-     });
+    })
 })
 //delete json resource
 app.delete('/api/persons/:id', (request, response, next) => {
     Person.findByIdAndRemove(request.params.id)
-        .then(result => {
-            response.status(204).end()
-        })
+        .then(response.status(204).end())
         .catch(error => next(error))
 })
 //add new json resource
@@ -67,37 +65,29 @@ app.post('/api/persons/', (request, response, next) => {
     const body = request.body
 
     const newPerson = new Person({
-        "name": body.name,
-        "number": body.number,
+        'name': body.name,
+        'number': body.number
     })
 
     Person.countDocuments({name: body.name}, function (err, count){  //checks if name exists (frontend also checks it but course asked to check this in the backend aswell)
         if(count>0){
-            return response.status(400).send(`Name already exists! it must be unique.`)
+            return response.status(400).send('Name already exists! it must be unique.')
         } else {
             newPerson.save().then(person => {
                 response.json(person)
             })
-            .catch(error => next(error))
+                .catch(error => next(error))
         }
     })
     
 })
 
 
-
-
-
-
-
-
-
-
 const errorHandler = (error, request, response, next) => {
-    console.log("ERROR NAME: ",error.name)
+    console.log('ERROR NAME: ',error.name)
 
     if (error.name === 'ReferenceError'){
-        return response.status(400).send(`Conact doesn't exist!`)
+        return response.status(400).send('Conact doesn`t exist!')
     }
     if (error.name === 'ValidationError') {
         return response.status(400).json({ error: error.message })
@@ -111,10 +101,8 @@ app.use(errorHandler)
 
 
 
-
-
-
+// eslint-disable-next-line no-undef
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`)
+    console.log(`Server running on port ${PORT}`)
 })
